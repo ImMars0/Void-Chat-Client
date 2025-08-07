@@ -9,6 +9,14 @@ app.use('/api', createProxyMiddleware({
   secure: false, 
 }));
 
+app.use('/chatHub', createProxyMiddleware({
+  target: 'https://localhost:7124',
+  changeOrigin: true,
+  ws: true,              
+  secure: false,
+}));
+
+
 app.listen(6969, () => {
-  console.log('Proxy server is running on http://localhost:6969')
+  console.log('Proxy server is running on https://localhost:6969')
 });
