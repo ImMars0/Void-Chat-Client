@@ -35,7 +35,6 @@ function AppContent() {
       )}
 
       <Routes>
-        <Route path="/" element={<h2>Home Page</h2>} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
       </Routes>
@@ -46,10 +45,14 @@ function AppContent() {
 function NavButtons() {
   const location = useLocation();
   return (
-    <nav style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-      <Link to="/">
-        <button disabled={location.pathname === "/"}>Home</button>
-      </Link>
+    <nav
+      style={{
+        marginTop: "20px",
+        display: "flex",
+        gap: "10px",
+        justifyContent: "center",
+      }}
+    >
       <Link to="/signup">
         <button disabled={location.pathname === "/signup"}>Sign up</button>
       </Link>
