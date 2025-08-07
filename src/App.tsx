@@ -12,18 +12,34 @@ import Login from "./components/login";
 function App() {
   return (
     <BrowserRouter>
-      <div className="App">
-        <header className="App-header">
-          <h1>Welcome to Void</h1>
-          <NavButtons />
-        </header>
-        <Routes>
-          <Route path="/" element={<h2>Home Page</h2>} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </div>
+      <AppContent />
     </BrowserRouter>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+
+  const hideLayout =
+    location.pathname === "/signup" || location.pathname === "/login";
+
+  return (
+    <div className="App">
+      {!hideLayout && (
+        <>
+          <header className="App-header">
+            <h1>Welcome to Void</h1>
+            <NavButtons />
+          </header>
+        </>
+      )}
+
+      <Routes>
+        <Route path="/" element={<h2>Home Page</h2>} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </div>
   );
 }
 
@@ -35,10 +51,10 @@ function NavButtons() {
         <button disabled={location.pathname === "/"}>Home</button>
       </Link>
       <Link to="/signup">
-        <button disabled={location.pathname === "/signup"}>Sign Up</button>
+        <button disabled={location.pathname === "/signup"}>Sign up</button>
       </Link>
       <Link to="/login">
-        <button disabled={location.pathname === "/login"}>Login</button>
+        <button disabled={location.pathname === "/login"}>Log in</button>
       </Link>
     </nav>
   );
