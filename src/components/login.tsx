@@ -80,6 +80,13 @@ const Login = () => {
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
         </button>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          style={{ marginTop: "10px", marginLeft: "10px" }}
+        >
+          Home
+        </button>
       </form>
     </div>
   );

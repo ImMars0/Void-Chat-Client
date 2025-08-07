@@ -110,6 +110,13 @@ const SignUp = () => {
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Wait..." : "Sign Up"}
         </button>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          style={{ marginTop: "10px", marginLeft: "10px" }}
+        >
+          Home
+        </button>
       </form>
 
       <p className="login-link">
