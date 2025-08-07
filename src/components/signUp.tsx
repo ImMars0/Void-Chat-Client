@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiClient } from "../API/authApi";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -33,7 +34,7 @@ const SignUp = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:6969/api", {
+      const response = await apiClient.post("/signup", {
         username: formData.username,
         email: formData.email,
         password: formData.password,

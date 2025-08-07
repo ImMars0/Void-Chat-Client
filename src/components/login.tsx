@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { apiClient } from "../API/authApi";
 
 interface LoginFormData {
   usernameOrEmail: string;
@@ -32,7 +33,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:6969/api/login", {
+      const response = await apiClient.post("/login", {
         usernameOrEmail: formData.usernameOrEmail,
         password: formData.password,
       });
