@@ -2,7 +2,6 @@ import axios from "axios";
 import { useState } from "react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../API/authApi";
 
 interface LoginFormData {
   usernameOrEmail: string;
@@ -33,18 +32,28 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post("/login", {
-        usernameOrEmail: formData.usernameOrEmail,
-        password: formData.password,
-      });
+      const response = await axios.post(
+        "http://localhost:6969/api/authentication/login", // Fixed endpoint URL
+        {
+          username: formData.usernameOrEmail,
+          password: formData.password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status !== 200) {
-        throw new Error("Login failed");
+        throw new Error(response.data || "Login failed");
       }
+
       alert("Login successful!");
       navigate("/");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+    } catch (err: any) {
+      setError(err.response?.data || "Login failed");
     } finally {
       setIsLoading(false);
     }
