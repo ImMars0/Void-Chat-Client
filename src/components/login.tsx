@@ -33,7 +33,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:6969/api/authentication/login", // Fixed endpoint URL
+        "http://localhost:6969/api/authentication/login",
         {
           username: formData.usernameOrEmail,
           password: formData.password,

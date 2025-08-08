@@ -20,7 +20,6 @@ function App() {
 function AppContent() {
   const location = useLocation();
 
-  // Fixed: Added proper path matching with startsWith for nested routes
   const hideLayout =
     location.pathname.startsWith("/signup") ||
     location.pathname.startsWith("/login");
@@ -47,7 +46,6 @@ function AppContent() {
 function NavButtons() {
   const location = useLocation();
 
-  // Fixed: Added proper path matching for button disabled states
   const isSignUpPage = location.pathname.startsWith("/signup");
   const isLoginPage = location.pathname.startsWith("/login");
 

@@ -38,7 +38,7 @@ const SignUp = () => {
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          confirmPassword: formData.confirmPassword, // Must match exactly
+          confirmPassword: formData.confirmPassword,
         },
         {
           withCredentials: true,
