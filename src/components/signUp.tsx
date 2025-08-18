@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiClient } from "../API/urlApi";
+
 const SignUp = () => {
   const [formData, setFormData] = useState({
     username: "",
@@ -32,21 +34,12 @@ const SignUp = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:6969/api/authentication/register",
-        {
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          confirmPassword: formData.confirmPassword,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.post("/authentication/signup", {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      });
       if (response.status !== 200) {
         throw new Error("Failed to sign up");
       }

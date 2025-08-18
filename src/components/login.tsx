@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useState } from "react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import { apiClient } from "../API/urlApi";
 interface LoginFormData {
   usernameOrEmail: string;
   password: string;
@@ -32,26 +31,28 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:6969/api/authentication/login",
-        {
-          username: formData.usernameOrEmail,
-          password: formData.password,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.post("/authentication/login", {
+        username: formData.usernameOrEmail,
+        password: formData.password,
+      });
 
       if (response.status !== 200) {
         throw new Error(response.data || "Login failed");
       }
 
       alert("Login successful!");
-      navigate("/");
+
+      console.log("Login response data:", response.data);
+      const userId = response.data?.id;
+      console.log("User ID:", userId);
+      if (!userId) {
+        setError("User ID not found in response");
+        setIsLoading(false);
+        return;
+      }
+      localStorage.setItem("currentUserId", userId.toString());
+
+      navigate("/chat");
     } catch (err: any) {
       setError(err.response?.data || "Login failed");
     } finally {
