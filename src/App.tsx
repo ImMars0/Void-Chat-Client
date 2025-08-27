@@ -1,13 +1,12 @@
-import {
-  BrowserRouter,
-  Route,
-  Routes,
-  Link,
-  useLocation,
-} from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import SignUp from "./components/signUp";
 import Login from "./components/login";
+import Chatting from "./components/chatting";
+import UserSearch from "./components/UserSearch";
+import PrivateChat from "./components/privateChat";
+import Layout from "./components/layout";
 
 function App() {
   return (
@@ -19,52 +18,32 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-
-  const hideLayout =
-    location.pathname.startsWith("/signup") ||
-    location.pathname.startsWith("/login");
+  const hideLayoutRoutes = ["/login", "/signup"];
 
   return (
     <div className="App">
-      {!hideLayout && (
-        <>
-          <header className="App-header">
-            <h1>Welcome to Void</h1>
-            <NavButtons />
-          </header>
-        </>
-      )}
+      {!hideLayoutRoutes.includes(location.pathname) && <Layout />}
 
-      <Routes>
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/chatting" element={<Chatting />} />
+          <Route path="/userSearch" element={<UserSearch />} />
+          <Route path="/privateChat" element={<PrivateChat />} />
+        </Routes>
+      </main>
     </div>
   );
 }
 
-function NavButtons() {
-  const location = useLocation();
-
-  const isSignUpPage = location.pathname.startsWith("/signup");
-  const isLoginPage = location.pathname.startsWith("/login");
-
+function Home() {
   return (
-    <nav
-      style={{
-        marginTop: "20px",
-        display: "flex",
-        gap: "10px",
-        justifyContent: "center",
-      }}
-    >
-      <Link to="/signup">
-        <button disabled={isSignUpPage}>Sign up</button>
-      </Link>
-      <Link to="/register">
-        <button disabled={isLoginPage}>Log in</button>
-      </Link>
-    </nav>
+    <div className="home-container">
+      <h1>Welcome to Void</h1>
+      <p>Connect and chat with your friends</p>
+    </div>
   );
 }
 
