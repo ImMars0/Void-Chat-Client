@@ -1,82 +1,62 @@
-import { useState } from "react";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../API/urlApi";
-interface LoginFormData {
-  usernameOrEmail: string;
-  password: string;
-}
+import { authService } from "../services/authService";
 
-const Login = () => {
-  const [formData, setFormData] = useState<LoginFormData>({
-    usernameOrEmail: "",
+const Login: React.FC = () => {
+  const [formData, setFormData] = useState({
+    username: "",
     password: "",
   });
-
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError(""); // Clear error on input change
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post("/authentication/login", {
-        username: formData.usernameOrEmail,
-        password: formData.password,
-      });
+      const response = await authService.login(formData);
 
-      if (response.status !== 200) {
-        throw new Error(response.data || "Login failed");
-      }
+      localStorage.setItem("userId", response.id.toString());
+      localStorage.setItem("username", response.username);
 
-      alert("Login successful!");
-
-      console.log("Login response data:", response.data);
-      const userId = response.data?.id;
-      console.log("User ID:", userId);
-      if (!userId) {
-        setError("User ID not found in response");
-        setIsLoading(false);
-        return;
-      }
-      localStorage.setItem("currentUserId", userId.toString());
-
-      navigate("/chat");
+      navigate("/chatting");
     } catch (err: any) {
-      setError(err.response?.data || "Login failed");
+      setError(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
+    <div className="auth-container">
       <h2>Login</h2>
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="usernameOrEmail">Username or Email:</label>
+          <label htmlFor="username">Username:</label>
           <input
             type="text"
-            id="usernameOrEmail"
-            name="usernameOrEmail"
-            value={formData.usernameOrEmail}
+            id="username"
+            name="username"
+            value={formData.username}
             onChange={handleChange}
             required
+            disabled={isLoading}
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="password">Password:</label>
           <input
@@ -86,19 +66,27 @@ const Login = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            disabled={isLoading}
           />
         </div>
+
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
         </button>
+
         <button
           type="button"
           onClick={() => navigate("/")}
-          style={{ marginTop: "10px", marginLeft: "10px" }}
+          className="secondary-button"
+          disabled={isLoading}
         >
           Home
         </button>
       </form>
+
+      <p className="auth-link">
+        Don't have an account? <a href="/signup">Sign up here</a>
+      </p>
     </div>
   );
 };
