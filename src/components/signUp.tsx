@@ -1,63 +1,59 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../API/urlApi";
+import { authService } from "../services/authService";
 
-const SignUp = () => {
+const SignUp: React.FC = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setIsLoading(true);
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
-      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      const response = await apiClient.post("/authentication/signup", {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-      });
-      if (response.status !== 200) {
-        throw new Error("Failed to sign up");
-      }
-      alert("Sign up successful! Please log in.");
+      await authService.register(formData);
+      alert("Registration successful! Please log in.");
       navigate("/login");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
+    } catch (err: any) {
+      // Handle backend validation errors
+      const errorMessage =
+        err.response?.data || "Registration failed. Please try again.";
+      setError(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : JSON.stringify(errorMessage)
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="signUp-container">
+    <div className="auth-container">
       <h2>Sign Up</h2>
       {error && <div className="error-message">{error}</div>}
 
-      <form onSubmit={handleSignUp}>
+      <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="username">Username:</label>
           <input
@@ -68,6 +64,7 @@ const SignUp = () => {
             onChange={handleChange}
             required
             minLength={3}
+            disabled={isLoading}
           />
         </div>
 
@@ -80,6 +77,7 @@ const SignUp = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -93,6 +91,7 @@ const SignUp = () => {
             onChange={handleChange}
             required
             minLength={6}
+            disabled={isLoading}
           />
           <small>Must include uppercase, lowercase, and number</small>
         </div>
@@ -106,22 +105,25 @@ const SignUp = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
+            disabled={isLoading}
           />
         </div>
 
         <button type="submit" disabled={isLoading}>
-          {isLoading ? "Wait..." : "Sign Up"}
+          {isLoading ? "Creating Account..." : "Sign Up"}
         </button>
+
         <button
           type="button"
           onClick={() => navigate("/")}
-          style={{ marginTop: "10px", marginLeft: "10px" }}
+          className="secondary-button"
+          disabled={isLoading}
         >
           Home
         </button>
       </form>
 
-      <p className="login-link">
+      <p className="auth-link">
         Already have an account? <a href="/login">Login here</a>
       </p>
     </div>
