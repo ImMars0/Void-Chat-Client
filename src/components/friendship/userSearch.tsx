@@ -32,7 +32,7 @@ const UserSearch: React.FC = () => {
 
   const handleSendRequest = async (friendId: number) => {
     try {
-      await apiClient.post("/friendships/request", { friendId });
+      await apiClient.post("/friendship/request", { friendId });
       alert("Friend request sent!");
       setResults(results.filter((user) => user.id !== friendId));
     } catch (err: any) {

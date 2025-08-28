@@ -16,9 +16,7 @@ const FriendRequests: React.FC = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await apiClient.get<Friendship[]>(
-        "/friendships/pending"
-      );
+      const response = await apiClient.get<Friendship[]>("/friendship/pending");
       setRequests(response.data);
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to load requests");
@@ -36,7 +34,7 @@ const FriendRequests: React.FC = () => {
     }
 
     try {
-      await apiClient.post("/friendships/respond", { friendshipId, accept });
+      await apiClient.post("/friendship/respond", { friendshipId, accept });
       alert(accept ? "Friend request accepted!" : "Friend request declined.");
       fetchRequests();
     } catch (err: any) {

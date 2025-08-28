@@ -24,7 +24,7 @@ const FriendsList: React.FC = () => {
 
   const fetchFriends = async () => {
     try {
-      const response = await apiClient.get<Friendship[]>("/friendships");
+      const response = await apiClient.get<Friendship[]>("/friendship");
       setFriends(response.data);
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to load friends");
@@ -47,7 +47,7 @@ const FriendsList: React.FC = () => {
     if (!window.confirm("Are you sure you want to remove this friend?")) return;
 
     try {
-      await apiClient.delete(`/friendships/${friendId}`);
+      await apiClient.delete(`/friendship/${friendId}`);
       alert("Friend removed successfully");
       fetchFriends();
     } catch (err: any) {
@@ -59,7 +59,7 @@ const FriendsList: React.FC = () => {
     if (!window.confirm("Are you sure you want to block this user?")) return;
 
     try {
-      await apiClient.post(`/friendships/block/${friendId}`);
+      await apiClient.post(`/friendship/block/${friendId}`);
       alert("User blocked successfully");
       fetchFriends();
     } catch (err: any) {
