@@ -11,6 +11,8 @@ const Layout: React.FC = () => {
     navigate("/");
   };
 
+  const storedUsername = localStorage.getItem("username");
+
   const isActive = (path: string) => location.pathname === path;
 
   return (
@@ -33,6 +35,9 @@ const Layout: React.FC = () => {
         }}
       >
         <div>
+          <p>
+            Logged in as: <strong>{storedUsername}</strong>
+          </p>
           <h1 style={{ color: "#f5f5f5" }}>Void Chat</h1>
 
           <div style={{ marginTop: 30 }}>
