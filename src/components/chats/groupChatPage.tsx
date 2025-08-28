@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 
 const GroupChatPage: React.FC = () => {
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null
-  );
+  const connectionRef = useRef<signalR.HubConnection | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
   const [input, setInput] = useState("");
@@ -13,12 +11,14 @@ const GroupChatPage: React.FC = () => {
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || connectionRef.current) return;
 
     const hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`https://localhost:7124/chatHub?userId=${userId}`)
       .withAutomaticReconnect()
       .build();
+
+    connectionRef.current = hubConnection;
 
     hubConnection.onclose(() => setConnectionState("Disconnected"));
     hubConnection.onreconnecting(() => setConnectionState("Reconnecting"));
@@ -37,27 +37,22 @@ const GroupChatPage: React.FC = () => {
     });
 
     const startConnection = async () => {
-      try {
-        await hubConnection.start();
-        setConnection(hubConnection);
-        setConnectionState("Connected");
-      } catch (err) {
-        console.error("Connection error:", err);
-        setConnectionState("Failed");
-        setTimeout(startConnection, 5000);
-      }
+      hubConnection
+        .start()
+        .then(() => setConnectionState("Connected"))
+        .catch((err) => console.error("Initial connection failed:", err));
     };
 
     startConnection();
 
     return () => {
-      if (hubConnection) {
-        hubConnection.stop();
-      }
+      hubConnection.stop();
+      connectionRef.current = null;
     };
   }, [userId]);
 
   const sendMessage = async () => {
+    const connection = connectionRef.current;
     if (
       !connection ||
       connection.state !== signalR.HubConnectionState.Connected ||
@@ -106,7 +101,7 @@ const GroupChatPage: React.FC = () => {
         />
         <button
           onClick={sendMessage}
-          disabled={!connection || connectionState !== "Connected"}
+          disabled={connectionState !== "Connected"}
         >
           {connectionState === "Connected" ? "Send" : "Connecting..."}
         </button>
