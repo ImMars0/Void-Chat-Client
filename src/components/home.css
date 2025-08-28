@@ -1,0 +1,34 @@
+.stars, .stars2, .stars3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background: transparent;
+  box-shadow: 
+    100px 200px white, 300px 400px white, 500px 100px white,
+    700px 300px white, 900px 600px white, 1100px 200px white,
+    1300px 400px white, 1500px 100px white, 1700px 300px white;
+  animation: moveStars 100s linear infinite;
+}
+
+.stars2 {
+  box-shadow: 
+    150px 250px white, 350px 450px white, 550px 150px white,
+    750px 350px white, 950px 650px white, 1150px 250px white,
+    1350px 450px white, 1550px 150px white, 1750px 350px white;
+  animation-duration: 150s;
+}
+
+.stars3 {
+  box-shadow: 
+    50px 100px white, 250px 300px white, 450px 50px white,
+    650px 250px white, 850px 550px white, 1050px 150px white,
+    1250px 350px white, 1450px 50px white, 1650px 250px white;
+  animation-duration: 200s;
+}
+
+@keyframes moveStars {
+  from { transform: translateY(0) translateX(0); }
+  to { transform: translateY(-1000px) translateX(-500px); }
+}

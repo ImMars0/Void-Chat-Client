@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 
-const ChatHub: React.FC = () => {
+const GroupChatPage: React.FC = () => {
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
     null
   );
   const [messages, setMessages] = useState<string[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
   const [input, setInput] = useState("");
+  const [connectionState, setConnectionState] = useState("Disconnected");
 
   const userId = localStorage.getItem("userId");
 
@@ -19,8 +20,16 @@ const ChatHub: React.FC = () => {
       .withAutomaticReconnect()
       .build();
 
-    hubConnection.on("ReceiveMessage", (user: string, message: string) => {
-      setMessages((prev) => [...prev, `${user}: ${message}`]);
+    hubConnection.onclose(() => setConnectionState("Disconnected"));
+    hubConnection.onreconnecting(() => setConnectionState("Reconnecting"));
+    hubConnection.onreconnected(() => setConnectionState("Connected"));
+
+    hubConnection.on("ReceiveMessage", (messageData: any) => {
+      const messageText =
+        typeof messageData === "object"
+          ? `User ${messageData.senderId}: ${messageData.content}`
+          : messageData;
+      setMessages((prev) => [...prev, messageText]);
     });
 
     hubConnection.on("OnlineUsersCount", (count: number) => {
@@ -31,8 +40,10 @@ const ChatHub: React.FC = () => {
       try {
         await hubConnection.start();
         setConnection(hubConnection);
+        setConnectionState("Connected");
       } catch (err) {
         console.error("Connection error:", err);
+        setConnectionState("Failed");
         setTimeout(startConnection, 5000);
       }
     };
@@ -40,16 +51,21 @@ const ChatHub: React.FC = () => {
     startConnection();
 
     return () => {
-      if (hubConnection.state === signalR.HubConnectionState.Connected) {
+      if (hubConnection) {
         hubConnection.stop();
       }
     };
   }, [userId]);
 
-  console.log("User ID:", userId);
-
   const sendMessage = async () => {
-    if (!connection || !input.trim()) return;
+    if (
+      !connection ||
+      connection.state !== signalR.HubConnectionState.Connected ||
+      !input.trim()
+    ) {
+      console.warn("Cannot send message - connection not ready");
+      return;
+    }
 
     try {
       await connection.invoke("SendMessage", input);
@@ -63,7 +79,7 @@ const ChatHub: React.FC = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Chat</h2>
+      <h2>Chat (Status: {connectionState})</h2>
       <div>Online: {onlineUsers}</div>
 
       <div
@@ -86,13 +102,17 @@ const ChatHub: React.FC = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           style={{ marginRight: 10 }}
+          disabled={connectionState !== "Connected"}
         />
-        <button onClick={sendMessage} disabled={!connection}>
-          Send
+        <button
+          onClick={sendMessage}
+          disabled={!connection || connectionState !== "Connected"}
+        >
+          {connectionState === "Connected" ? "Send" : "Connecting..."}
         </button>
       </div>
     </div>
   );
 };
 
-export default ChatHub;
+export default GroupChatPage;
