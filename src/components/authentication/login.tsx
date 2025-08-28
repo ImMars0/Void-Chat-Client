@@ -23,6 +23,7 @@ const Login: React.FC = () => {
       const response = await authService.login(formData);
       localStorage.setItem("userId", response.id.toString());
       localStorage.setItem("username", response.username);
+      navigate("/chatting");
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Login failed. Please try again."
