@@ -14,7 +14,7 @@ const GroupChatPage: React.FC = () => {
     if (!userId || connectionRef.current) return;
 
     const hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`https://localhost:7124/chatHub?userId=${userId}`)
+      .withUrl(`https://localhost:7124/groupChatHub?userId=${userId}`)
       .withAutomaticReconnect()
       .build();
 

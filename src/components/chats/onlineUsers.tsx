@@ -4,7 +4,7 @@ import { apiClient } from "../../API/urlApi";
 
 interface ActiveUsersListProps {
   currentUserId: number;
-  onUserSelect: (userId: number) => void; // This is the correct prop
+  onUserSelect: (userId: number) => void;
 }
 
 const ActiveUsersList: React.FC<ActiveUsersListProps> = ({
@@ -17,7 +17,7 @@ const ActiveUsersList: React.FC<ActiveUsersListProps> = ({
   );
 
   useEffect(() => {
-    const hubUrl = `${apiClient.defaults.baseURL}/chatHub`;
+    const hubUrl = `${apiClient.defaults.baseURL}/groupChatHub`;
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(`${hubUrl}?userId=${currentUserId}`, {
         withCredentials: true,
