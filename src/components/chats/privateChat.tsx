@@ -2,21 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useLocation } from "react-router-dom";
 import type LocationState from "../../types/LocationState";
-
-interface Message {
-  id: number;
-  senderId: number;
-  receiverId: number;
-  content: string;
-  timestamp: string;
-  isRead: boolean;
-  sender?: { userName?: string };
-}
-
-interface FriendStatus {
-  isOnline: boolean;
-  lastActive: string | null;
-}
+import type Message from "../../types/message";
+import type FriendStatus from "../../types/friendStatus";
 
 const PrivateChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -104,7 +91,6 @@ const PrivateChat: React.FC = () => {
     if (!lastActive) return "";
     return `(Last seen: ${new Date(lastActive).toLocaleString()})`;
   };
-
   return (
     <div className="private-chat" style={{ maxWidth: 600, margin: "0 auto" }}>
       <h2>
@@ -133,18 +119,15 @@ const PrivateChat: React.FC = () => {
               textAlign: msg.senderId === currentUserId ? "right" : "left",
               marginBottom: 10,
               padding: 8,
-              backgroundColor:
-                msg.senderId === currentUserId ? "#191a1aff" : "#f5f5f5",
+              backgroundColor: "#191a1aff",
+              color: "white",
               borderRadius: 8,
               marginLeft: msg.senderId === currentUserId ? "20%" : "0",
               marginRight: msg.senderId === currentUserId ? "0" : "20%",
             }}
           >
-            <div>
-              <strong>{msg.sender?.userName || "You"}: </strong>
-              {msg.content}
-            </div>
-            <div style={{ fontSize: 10, color: "#666", marginTop: 4 }}>
+            <div>{msg.content}</div>
+            <div style={{ fontSize: 10, color: "#ccc", marginTop: 4 }}>
               {new Date(msg.timestamp).toLocaleTimeString()}
               {msg.senderId === currentUserId && (
                 <span style={{ marginLeft: 5 }}>{msg.isRead ? "✓✓" : "✓"}</span>

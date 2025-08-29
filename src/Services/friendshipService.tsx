@@ -1,5 +1,6 @@
 import { apiClient } from "../API/urlApi";
-import { Friendship, FriendRequest, FriendResponse } from "../types/friendship";
+import type Friendship from "../types/friendship";
+import type FriendRequest from "../types/friendship";
 
 export const friendshipService = {
   async sendRequest(

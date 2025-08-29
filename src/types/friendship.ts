@@ -1,10 +1,6 @@
-export interface User {
-  id: number;
-  userName: string;
-  email?: string;
-}
 
-export interface Friendship {
+
+  interface Friendship {
   id: number;
   userId: number;
   friendId: number;
@@ -12,15 +8,8 @@ export interface Friendship {
   status: "Pending" | "Accepted" | "Rejected" | "Blocked";
   createdAt: string;
 }
+export default Friendship;
 
-export interface FriendRequest {
-  friendId: number;
-}
 
-export interface FriendResponse {
-  friendshipId: number;
-  accept: boolean;
-}
-export interface BlockUser {
-  userIdToBlock: number;
-}
+
+
