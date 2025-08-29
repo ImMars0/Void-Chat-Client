@@ -50,7 +50,7 @@ const Layout: React.FC = () => {
                     display: "block",
                     padding: 8,
                     backgroundColor: isActive("/friendsList")
-                      ? "#4f46e5"
+                      ? "#db2777"
                       : "transparent",
                     borderRadius: 4,
                     color: "#f5f5f5",
@@ -66,7 +66,7 @@ const Layout: React.FC = () => {
                     display: "block",
                     padding: 8,
                     backgroundColor: isActive("/friendRequests")
-                      ? "#6d28d9"
+                      ? "#db2777"
                       : "transparent",
                     borderRadius: 4,
                     color: "#f5f5f5",
@@ -82,7 +82,7 @@ const Layout: React.FC = () => {
                     display: "block",
                     padding: 8,
                     backgroundColor: isActive("/userSearch")
-                      ? "#374151"
+                      ? "#db2777"
                       : "transparent",
                     borderRadius: 4,
                     color: "#f5f5f5",
@@ -120,10 +120,10 @@ const Layout: React.FC = () => {
                     display: "block",
                     padding: 8,
                     backgroundColor: isActive("/chat")
-                      ? "#facc15"
+                      ? "#db2777"
                       : "transparent",
                     borderRadius: 4,
-                    color: "#1f1f1f",
+                    color: "#f5f5f5",
                   }}
                 >
                   Group Chat
@@ -138,7 +138,7 @@ const Layout: React.FC = () => {
           style={{
             marginTop: 20,
             padding: 10,
-            backgroundColor: "#b91c1c",
+            backgroundColor: "#db2777",
             color: "white",
             border: "none",
             borderRadius: 4,
