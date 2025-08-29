@@ -89,7 +89,7 @@ const SignUp: React.FC = () => {
               required
               minLength={3}
               disabled={isLoading}
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
+              style={{ width: "96%", padding: 8, marginTop: 4 }}
             />
           </div>
 
@@ -103,7 +103,7 @@ const SignUp: React.FC = () => {
               onChange={handleChange}
               required
               disabled={isLoading}
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
+              style={{ width: "96%", padding: 8, marginTop: 4 }}
             />
           </div>
 
@@ -118,7 +118,7 @@ const SignUp: React.FC = () => {
               required
               minLength={6}
               disabled={isLoading}
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
+              style={{ width: "96%", padding: 8, marginTop: 4 }}
             />
             <small>Must include uppercase, lowercase, and number</small>
           </div>
@@ -133,7 +133,7 @@ const SignUp: React.FC = () => {
               onChange={handleChange}
               required
               disabled={isLoading}
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
+              style={{ width: "96%", padding: 8, marginTop: 4 }}
             />
           </div>
 
@@ -162,7 +162,7 @@ const SignUp: React.FC = () => {
               width: "100%",
               padding: 10,
               marginTop: 5,
-              backgroundColor: "#e5e7eb",
+              backgroundColor: "#4f46e5",
               border: "none",
               borderRadius: 4,
               cursor: "pointer",
