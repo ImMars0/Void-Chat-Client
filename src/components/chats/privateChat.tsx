@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useLocation } from "react-router-dom";
+import type LocationState from "../../types/LocationState";
 
 interface Message {
   id: number;
@@ -15,12 +16,6 @@ interface Message {
 interface FriendStatus {
   isOnline: boolean;
   lastActive: string | null;
-}
-
-interface LocationState {
-  currentUserId: number;
-  friendId: number;
-  friendUsername: string;
 }
 
 const PrivateChat: React.FC = () => {
