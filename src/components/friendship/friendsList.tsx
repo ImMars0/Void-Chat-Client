@@ -37,7 +37,7 @@ const FriendsList: React.FC = () => {
     navigate("/privateChat", {
       state: {
         currentUserId,
-        friendId: friend.friendId,
+        friendId: friend.userId,
         friendUsername: friend.friendUsername,
       },
     });
