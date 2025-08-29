@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { apiClient } from "../../API/urlApi";
+import * as signalR from "@microsoft/signalr";
 import { useLocation } from "react-router-dom";
 
 interface Message {
@@ -26,14 +26,15 @@ interface LocationState {
 const PrivateChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [friendStatus, setFriendStatus] = useState<FriendStatus>({
     isOnline: false,
     lastActive: null,
   });
+  const [isConnected, setIsConnected] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hubRef = useRef<signalR.HubConnection | null>(null);
+
   const location = useLocation();
   const { currentUserId, friendId, friendUsername } =
     (location.state as LocationState) || {};
@@ -42,79 +43,59 @@ const PrivateChat: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  const markMessagesAsRead = useCallback(
-    async (msgs: Message[]) => {
-      if (!currentUserId) return;
-
-      const unreadMessages = msgs.filter(
-        (m) => !m.isRead && m.receiverId === currentUserId
-      );
-
-      for (const msg of unreadMessages) {
-        try {
-          await apiClient.put(`/chats/markAsRead/${msg.id}`);
-        } catch {
-          console.error("Failed to mark message as read", msg.id);
-        }
-      }
-    },
-    [currentUserId]
-  );
-
-  const loadConversation = useCallback(async () => {
+  useEffect(() => {
     if (!currentUserId || !friendId) return;
 
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await apiClient.get<Message[]>(
-        `/chats/conversation?user1=${currentUserId}&user2=${friendId}`
-      );
-      setMessages(res.data);
-      await markMessagesAsRead(res.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to load conversation");
-    } finally {
-      setLoading(false);
-    }
-  }, [currentUserId, friendId, markMessagesAsRead]);
+    const hub = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7124/privateChatHub", {
+        withCredentials: true,
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    hubRef.current = hub;
+
+    hub.start().then(async () => {
+      setIsConnected(true);
+    });
+
+    hub.on("ReceiveMessage", (msg: Message) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    hub.on("UpdateFriendStatus", (status: FriendStatus) => {
+      setFriendStatus(status);
+    });
+
+    hub.onclose(() => setIsConnected(false));
+
+    return () => {
+      hub.stop();
+    };
+  }, [currentUserId, friendId]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !currentUserId || !friendId) return;
+    const hub = hubRef.current;
+    if (!hub || hub.state !== signalR.HubConnectionState.Connected) return;
 
     try {
-      setError(null);
-      await apiClient.post("/chats", {
+      await hub.invoke("SendPrivateMessage", friendId, newMessage.trim());
+
+      const msg: Message = {
+        id: Date.now(),
         senderId: currentUserId,
         receiverId: friendId,
         content: newMessage.trim(),
+        timestamp: new Date().toISOString(),
         isRead: false,
-      });
+      };
 
+      setMessages((prev) => [...prev, msg]);
       setNewMessage("");
-      await loadConversation();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to send message");
-    }
+      scrollToBottom();
+    } catch {}
   };
-
-  const fetchFriendStatus = useCallback(async () => {
-    if (!friendId) return;
-    try {
-      const res = await apiClient.get<FriendStatus>(`/user/status/${friendId}`);
-      setFriendStatus({
-        isOnline: res.data.isOnline,
-        lastActive: res.data.lastActive,
-      });
-    } catch (err) {
-      console.error("Failed to fetch friend status");
-    }
-  }, [friendId]);
-
-  useEffect(() => {
-    loadConversation();
-    fetchFriendStatus();
-  }, [loadConversation, fetchFriendStatus]);
 
   useEffect(() => {
     scrollToBottom();
@@ -140,8 +121,6 @@ const PrivateChat: React.FC = () => {
         </span>
       </h2>
 
-      {error && <div style={{ color: "red" }}>{error}</div>}
-
       <div
         className="messages-container"
         style={{
@@ -152,12 +131,6 @@ const PrivateChat: React.FC = () => {
           marginBottom: 10,
         }}
       >
-        {loading && <div>Loading messages...</div>}
-        {!loading && messages.length === 0 && (
-          <div style={{ textAlign: "center", color: "#666" }}>
-            No messages yet. Start the conversation!
-          </div>
-        )}
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -173,7 +146,7 @@ const PrivateChat: React.FC = () => {
             }}
           >
             <div>
-              <strong>{msg.sender?.userName || "Unknown"}: </strong>
+              <strong>{msg.sender?.userName || "You"}: </strong>
               {msg.content}
             </div>
             <div style={{ fontSize: 10, color: "#666", marginTop: 4 }}>
@@ -192,9 +165,9 @@ const PrivateChat: React.FC = () => {
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Type a message..."
-          disabled={loading}
+          disabled={!isConnected}
           style={{
             flex: 1,
             padding: 8,
@@ -204,17 +177,19 @@ const PrivateChat: React.FC = () => {
         />
         <button
           onClick={sendMessage}
-          disabled={loading || !newMessage.trim()}
+          disabled={!newMessage.trim() || !isConnected}
           style={{
             padding: "8px 16px",
-            backgroundColor: loading || !newMessage.trim() ? "#ccc" : "#2563eb",
+            backgroundColor:
+              !newMessage.trim() || !isConnected ? "#ccc" : "#2563eb",
             color: "white",
             border: "none",
             borderRadius: 4,
-            cursor: loading || !newMessage.trim() ? "not-allowed" : "pointer",
+            cursor:
+              !newMessage.trim() || !isConnected ? "not-allowed" : "pointer",
           }}
         >
-          {loading ? "Sending..." : "Send"}
+          Send
         </button>
       </div>
     </div>
